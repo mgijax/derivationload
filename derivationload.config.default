@@ -1,0 +1,98 @@
+#format: sh
+#
+#  Configuration for derivationload
+#
+#  This file sets up environment variables that are needed for the
+#  derivationload
+#
+###########################################################################
+
+#
+#  If the MGICONFIG environment variable does not have a local override,
+#  use the default "live" settings.
+#
+
+if [ "${MGICONFIG}" = "" ]
+then
+    MGICONFIG=/usr/local/mgi/live/mgiconfig
+    export MGICONFIG
+fi
+
+#  establish name of master config and source it
+CONFIG_MASTER=${MGICONFIG}/master.config.sh
+
+export CONFIG_MASTER
+
+. ${CONFIG_MASTER}
+
+#############################################################################
+#
+#  DLA LOAD SPECIFIC SETTINGS
+#
+#  These settings required for DLA loads
+#
+#############################################################################
+
+#
+#  Output File Settings
+#
+
+#  full path the the logs, reports, and archive directories
+FILEDIR=${DATALOADSOUTPUT}/mgi/derivationload
+
+LOGDIR=${FILEDIR}/logs
+RPTDIR=${FILEDIR}/reports
+OUTPUTDIR=${FILEDIR}/output
+ARCHIVEDIR=${FILEDIR}/archive
+
+export FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
+TABLE=ALL_CellLine_Derivation
+
+OUTFILE_NAME=${TABLE}.bcp
+
+export TABLE OUTFILE_NAME
+
+# DO NOT CHANGE THESE
+COLDELIM="\t"
+LINEDELIM="\n"
+
+export COLDELIM LINEDELIM
+
+#
+#  Input File Settings
+#
+
+#  this load's MGI_User login. For DB tables CreatedBy and ModifiedBy column
+#  and for logging in radar jobstream table and files processed table
+JOBSTREAM=derivationload
+
+export JOBSTREAM
+
+#  Complete path name of the log files
+LOG_PROC=${LOGDIR}/derivationload.proc.log
+LOG_DIAG=${LOGDIR}/derivationload.diag.log
+LOG_CUR=${LOGDIR}/derivationload.cur.log
+LOG_VAL=${LOGDIR}/derivationload.val.log
+
+export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
+
+#############################################################################
+#
+#  INSTALL & JOBSTREAM SPECIFIC SETTINGS
+#
+#  These settings required by install or jobstream scripts 
+#
+#############################################################################
+
+#  name of the load for the subject of an email notification
+MAIL_LOADNAME="Cell Line Derivation Load"
+
+#  recipient list for mailing the curation log file (comma-separated)
+MAIL_LOG_CUR="sc"
+
+export MAIL_LOADNAME MAIL_LOG_CUR
+
+# installation directory for this product - for Install script
+INSTALLDIR=${DERIVATIONLOAD}
+
+export INSTALLDIR
