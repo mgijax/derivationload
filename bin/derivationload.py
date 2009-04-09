@@ -23,7 +23,7 @@
 #        6. Parent Cell Line Strain (ALL_CellLine._Strain_key)
 #        7. Cell Line Creator (Cell Line Creator Vocab Term, may be null)
 #        8. Reference (JNumber, may be null)
-#	 9. Derivation Type (Derivation Type Vocab Term)
+#	 9. Derivation Type (Allele Type Vocab Term)
 # Outputs:
 #	 1. bcp file 
 #	 2. log files
@@ -126,10 +126,10 @@ for r in results:
     key = '%s|%s' % (r['cellLine'], r['strain'])
     dbParentMap[key] = r['_CellLine_key']
 
-# map derivation type terms to their term keys
+# map derivation type (aka allelel type) terms to their term keys
 results = db.sql('select term, _Term_key ' + \
         'from VOC_Term ' + \
-        'where _Vocab_key = 65', 'auto')
+        'where _Vocab_key = 38', 'auto')
 for r in results:
     dbDerivTypeMap[r['term']] = r['_Term_key']
 
