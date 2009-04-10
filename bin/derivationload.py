@@ -31,7 +31,13 @@
 # Exit Codes:
 #
 #      0:  Successful completion
-#      1:  An exception occurred
+#      1:  An exception occurred - this load is all or nothing. If
+#	   any errors, load will exit
+#	   1. IO Errors
+#	   2. Record Format Errors
+#	   3. Derivation already in the database	
+#	   4. Derivation name or description too long
+#	   5. A term won't resolve to a key
 #
 #  Assumes:  Nothing
 #
