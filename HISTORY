@@ -1,3 +1,11 @@
+TAG: derivationload-4-2-1-3
+DATE: 04-09-2009
+STAFF:  sc
+CHANGES:
+1) derivationload.py - updated some comments, added test for jNum-''
+2) createDerivationInputFile.py and createDerivationInputFile.sh
+   which create derivations from existing parent cell lines in the database
+
 TAG: derivationload-4-2-1-2
 DATE: 04-07-2009
 STAFF:  sc

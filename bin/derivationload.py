@@ -21,7 +21,7 @@
 #        4. Vector Type (Cell Line Vector Type Vocab Term)
 #        5. Parent Cell Line Name (ALL_CellLine.cellLine)
 #        6. Parent Cell Line Strain (ALL_CellLine._Strain_key)
-#        7. Cell Line Creator (Cell Line Creator Vocab Term, may be null)
+#        7. Cell Line Creator (Cell Line Creator Vocab Term)
 #        8. Reference (JNumber, may be null)
 #	 9. Derivation Type (Allele Type Vocab Term)
 # Outputs:
@@ -224,7 +224,7 @@ for line in inFile.readlines():
 	creatorKey = ''
 
     # resolve JNumber to key if not null
-    if inJNum == 'null' or inJNum == 'Null':
+    if inJNum == 'null' or inJNum == 'Null' or inJNum == '':
 	referenceKey = ''
     elif dbJNumMap.has_key(inJNum):
 	referenceKey = dbReferenceMap[inJNum]
