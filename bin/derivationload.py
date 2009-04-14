@@ -94,6 +94,8 @@ dbJNumMap = {}
 results = db.sql('select derivKey = max(_Derivation_key) + 1 ' + \
                 'from ALL_CellLine_Derivation', 'auto')
 nextAvailableDerivKey = results[0]['derivKey']
+if nextAvailableDerivKey == None:
+	nextAvailableDerivKey = 1
 
 # get load user key
 results = db.sql('select _User_key ' + \
