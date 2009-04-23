@@ -171,7 +171,11 @@ except:
 # Process
 #
 
+moveOn = 0
+currentLine = 0
+errorCt = 0
 for line in inFile.readlines():
+    currentLine = currentLine + 1
     lineList = string.split(line, TAB)
     if len(lineList) != 9:
 	sys.exit('Line has only %s of 8 columns: %s ' %(len(lineList), line))
@@ -193,7 +197,8 @@ for line in inFile.readlines():
     # check to see if there is a derivation by this name already in the db
     if inName != 'null' and inName != 'Null':
 	if inName in dbDerivNameList:
-	    sys.exit('Derivation name already in database: %s' % inName)
+	    print 'Derivation name already in database: %s See line %s' % (inName, currentLine)
+	    moveOn = 1
     else:
 	inName = ''
 
@@ -201,33 +206,38 @@ for line in inFile.readlines():
     if dbVectorNameMap.has_key(inVector):
         vectorKey = dbVectorNameMap[inVector]
     else:
-	sys.exit('Cannot resolve Vector Name: %s' % inVector)
+	print 'Cannot resolve Vector Name: %s See line %s' % (inVector, currentLine)
+	moveOn = 1
 
     # resolve vector type to key
     if dbVectorTypeMap.has_key(inVectorType):
         vectorTypeKey = dbVectorTypeMap[inVectorType]
     else:
-        sys.exit('Cannot resolve Vector Type: %s' % inVectorType)
+        print 'Cannot resolve Vector Type: %s See line %s' % (inVectorType, currentLine)
+	moveOn = 1
 
     # resolve parent to key
     parentAndStrain = '%s|%s' % (inParent, inStrain)
     if dbParentMap.has_key(parentAndStrain):
         parentKey = dbParentMap[parentAndStrain]
     else:
-        sys.exit('Cannot resolve Parent: %s' % parentAndStrain)
+        print 'Cannot resolve Parent: %s See line %s' % (parentAndStrain, currentLine)
+	moveOn = 1
 
     # resolve derivation type to key
     if dbDerivTypeMap.has_key(inDerivType):
         derivTypeKey = dbDerivTypeMap[inDerivType]
     else:
-        sys.exit('Cannot resolve Derivation Type: %s' % inDerivType)
+        print 'Cannot resolve Derivation Type: %s See line %s' % (inDerivType, currentLine)
+	moveOn = 1
 
     # resolve creator to key if not null
     if inCreator != 'null' and inCreator != 'Null': 
 	if dbCreatorMap.has_key(inCreator):
 	    creatorKey = dbCreatorMap[inCreator]
 	else:
-	    sys.exit('Cannot resolve Creator name: %s' % inCreator)
+	    print 'Cannot resolve Creator name: %s See line %s' % (inCreator, currentLine)
+	    moveOn = 1
     else: 
 	creatorKey = ''
 
@@ -235,10 +245,14 @@ for line in inFile.readlines():
     if inJNum == 'null' or inJNum == 'Null' or inJNum == '':
 	referenceKey = ''
     elif dbJNumMap.has_key(inJNum):
-	referenceKey = dbReferenceMap[inJNum]
+	referenceKey = dbJNumMap[inJNum]
     else:
-	sys.exit('Cannot resolve JNumber: %s' % inJNum)
-
+	print 'Cannot resolve JNumber: %s See line %s' % (inJNum, currentLine)
+	moveOn = 1
+    if moveOn == 1:
+	errorCt = errorCt + 1
+	moveOn = 0
+	continue
     bcpFile.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' %
 	(nextAvailableDerivKey, colDelim, inName, colDelim, inDescript, \
 	colDelim, vectorKey, colDelim, vectorTypeKey, colDelim, \
@@ -249,6 +263,7 @@ for line in inFile.readlines():
     # increment the primary key
     nextAvailableDerivKey = nextAvailableDerivKey + 1
 
+print 'Total derivations not loaded because of resolving errors: %s' % errorCt
 #
 # Post Process
 #
