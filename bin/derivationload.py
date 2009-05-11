@@ -263,7 +263,7 @@ for line in inFile.readlines():
     # increment the primary key
     nextAvailableDerivKey = nextAvailableDerivKey + 1
 
-print 'Total derivations not loaded because of resolving errors: %s' % errorCt
+print 'Total derivations not loaded because already in the database or resolving errors: %s' % errorCt
 #
 # Post Process
 #

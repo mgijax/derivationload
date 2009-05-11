@@ -17,7 +17,8 @@
 #	 1. tab delimited file in derivation load format:
 #            1. Derivation Name i.e.
 #	 	Creator_DerivationType_"Library"_ParentCellLine_\
-#		        ParentCellLineStrain_Vector_DerivationReference
+#		        ParentCellLineStrain_Vector
+#		Note: '_' above represent spaces
 #            2. Description - null
 #            3. Vector Name - "Not Specified"
 #            4. Vector Type - "Not Specified"
@@ -51,6 +52,7 @@ db.useOneConnection(1)
 print '%s' % mgi_utils.date()
 
 outFilePath = os.environ['OUTFILE_NAME']
+print "outfilePath: " + outFilePath
 
 TAB= '\t'
 NL = '\n'
@@ -124,10 +126,9 @@ for p in parentCellLines.keys():
     strainList = parentCellLines[p]
     for s in strainList:
 	for d in derivationTypes:
-	    name = creator + SPACE + d + SPACE + "Library" + \
-	    SPACE + p + SPACE + s + SPACE + vectorName + \
-	    SPACE + "Null"
-	    outFile.write(name + TAB + description + TAB + \
+	    derivationName = creator + SPACE + d + SPACE + "Library" + \
+	    SPACE + p + SPACE + s + SPACE + vectorName 
+	    outFile.write(derivationName + TAB + description + TAB + \
 		vectorName + TAB + vectorType + TAB + \
 		p + TAB + s + TAB + creator + TAB + \
 		reference + TAB + d + NL)
