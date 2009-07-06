@@ -73,6 +73,9 @@ date = loadlib.loaddate
 # derivations currently in the database, by name
 dbDerivNameList = []
 
+# derivations in the input, by name
+inputDerivNameList = []
+
 # vector names mapped to database term key
 dbVectorNameMap = {}
 # vector types mapped to database term key
@@ -181,6 +184,13 @@ for line in inFile.readlines():
 	sys.exit('Line has only %s of 8 columns: %s ' %(len(lineList), line))
     
     inName = string.strip(lineList[0])		# may be null
+
+    # skip any duplicates in the input file
+    if inName in inputDerivNameList:
+	print "Duplicate input derivation, skipping: %s See line %s" % (inName, currentLine)
+	continue
+    inputDerivNameList.append(inName)
+
     if len(inName) > 255:
 	sys.exit('Derivation name > 255: %s' % inName)
     inDescript = string.strip(lineList[1]) 	# may be null
@@ -197,7 +207,7 @@ for line in inFile.readlines():
     # check to see if there is a derivation by this name already in the db
     if inName != 'null' and inName != 'Null':
 	if inName in dbDerivNameList:
-	    print 'Derivation name already in database: %s See line %s' % (inName, currentLine)
+	    print 'Derivation name already in database, skipping: %s See line %s' % (inName, currentLine)
 	    moveOn = 1
     else:
 	inName = ''
