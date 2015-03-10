@@ -136,7 +136,8 @@ cleanDir ${OUTPUTDIR} ${RPTDIR}
 #
 # run the derivation load
 #
-echo "\n`date`" >> ${LOG_DIAG} ${LOG_PROC}
+echo "" >> ${LOG_DIAG} ${LOG_PROC}
+echo "`date`" >> ${LOG_DIAG} ${LOG_PROC}
 echo "Running derivation load using ${INFILE_NAME}" | tee -a ${LOG_DIAG} ${LOG_PROC}
 
 ${DERIVATIONLOAD}/bin/derivationload.py ${INFILE_NAME} >> ${LOG_DIAG} 2>&1
