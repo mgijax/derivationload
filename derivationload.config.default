@@ -87,10 +87,7 @@ export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
 #  name of the load for the subject of an email notification
 MAIL_LOADNAME="Cell Line Derivation Load"
 
-#  recipient list for mailing the curation log file (comma-separated)
-MAIL_LOG_CUR="mgiadmin"
-
-export MAIL_LOADNAME MAIL_LOG_CUR
+export MAIL_LOADNAME
 
 # installation directory for this product - for Install script
 INSTALLDIR=${DERIVATIONLOAD}
