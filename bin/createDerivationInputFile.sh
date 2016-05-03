@@ -38,7 +38,7 @@ export OUTFILE_NAME
 
 if [ "${MGICONFIG}" = "" ]
 then
-    MGICONFIG=/home/sc/genetraps/mgiconfig
+    MGICONFIG=/usr/local/mgi/live/mgiconfig
     export MGICONFIG
 fi
 

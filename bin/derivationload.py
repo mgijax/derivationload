@@ -7,6 +7,7 @@
 #       creates a bcp file for ALL_CellLine_Derivation
 #
 # Usage: derivationload.py
+#
 # Env Vars:
 #	 1. INFILE_NAME
 #	 2. OUTPUTDIR
@@ -15,8 +16,8 @@
 #
 # Inputs:
 #        INFILE_NAME is an input file in tab-delimitted file format:
-#        1. Derivation Name (varchar 255, may be null)
-#        2. Description (varchar 255, may be null)
+#        1. Derivation Name (may be null)
+#        2. Description (may be null)
 #        3. Vector Name (Cell Line Vector Name Vocab Term)
 #        4. Vector Type (Cell Line Vector Type Vocab Term)
 #        5. Parent Cell Line Name (ALL_CellLine.cellLine)
@@ -24,6 +25,7 @@
 #        7. Cell Line Creator (Cell Line Creator Vocab Term)
 #        8. Reference (JNumber, may be null)
 #	 9. Derivation Type (Allele Type Vocab Term)
+#
 # Outputs:
 #	 1. bcp file 
 #	 2. log files
@@ -53,7 +55,6 @@ import loadlib
 import string
 
 db.useOneConnection(1)
-#db.set_sqlLogFunction(db.sqlLogAll)
 print '%s' % mgi_utils.date()
 
 inFilePath = os.environ['INFILE_NAME']
@@ -78,14 +79,19 @@ inputDerivNameList = []
 
 # vector names mapped to database term key
 dbVectorNameMap = {}
+
 # vector types mapped to database term key
 dbVectorTypeMap = {}
+
 # {parentName|parentStrain:parentKey, ...}
 dbParentMap = {}
+
 # derivation type mapped to database term key
 dbDerivTypeMap = {}
+
 # creator mapped to database term key
 dbCreatorMap = {}
+
 # JNumbers mapped to database reference key:w
 dbJNumMap = {}
 
@@ -94,69 +100,56 @@ dbJNumMap = {}
 #
 
 # get next available derivation key
-results = db.sql('select derivKey = max(_Derivation_key) + 1 ' + \
-                'from ALL_CellLine_Derivation', 'auto')
+results = db.sql('select derivKey = max(_Derivation_key) + 1 from ALL_CellLine_Derivation', 'auto')
 nextAvailableDerivKey = results[0]['derivKey']
 if nextAvailableDerivKey == None:
 	nextAvailableDerivKey = 1
 
 # get load user key
-results = db.sql('select _User_key ' + \
-		'from MGI_User ' + \
-		'where login = "%s"' % user, 'auto')
+results = db.sql('select _User_key from MGI_User where login = "%s"' % user, 'auto')
 userKey = results[0]['_User_key']
 
 # get list of named derivations in the database, so we don't add dups
-results = db.sql('select name ' + \
-	'from ALL_CellLine_Derivation ' + \
-	'where name != null', 'auto')
+results = db.sql('select name from ALL_CellLine_Derivation where name != null', 'auto')
 for r in results:
      dbDerivNameList.append(r['name'])
 
 # map database vector name terms to their term keys
-results = db.sql('select term, _Term_key ' + \
-	'from VOC_Term ' + \
-	' where _Vocab_key = 72', 'auto')
+results = db.sql('select term, _Term_key from VOC_Term where _Vocab_key = 72', 'auto')
 for r in results:
     dbVectorNameMap[r['term']] = r['_Term_key']
 
 
 # map database vector type terms to their term keys
-results = db.sql('select term, _Term_key ' + \
-	'from VOC_Term ' + \
-	'where _Vocab_key = 64', 'auto')
+results = db.sql('select term, _Term_key from VOC_Term where _Vocab_key = 64', 'auto')
 for r in results:
     dbVectorTypeMap[r['term']] = r['_Term_key']
 
 # map parent cell line names to their  cell line keys
-results = db.sql('select a.cellLine, s.strain,  a._CellLine_key ' + \
-	'from ALL_CellLine a, PRB_Strain s ' + \
-	'where a.isMutant = 0 ' + \
-	'and a._Strain_key = s._Strain_key', 'auto')
+results = db.sql('''select a.cellLine, s.strain,  a._CellLine_key
+	from ALL_CellLine a, PRB_Strain s
+	where a.isMutant = 0
+	and a._Strain_key = s._Strain_key
+	''', 'auto')
 for r in results:
     key = '%s|%s' % (r['cellLine'], r['strain'])
     dbParentMap[key] = r['_CellLine_key']
 
 # map derivation type (aka allelel type) terms to their term keys
-results = db.sql('select term, _Term_key ' + \
-        'from VOC_Term ' + \
-        'where _Vocab_key = 38', 'auto')
+results = db.sql('select term, _Term_key from VOC_Term where _Vocab_key = 38', 'auto')
 for r in results:
     dbDerivTypeMap[r['term']] = r['_Term_key']
 
 # map database creator name terms to their term keys
-results = db.sql('select term, _Term_key ' + \
-	'from VOC_Term ' + \
-	'where _Vocab_key = 62', 'auto')
+results = db.sql('select term, _Term_key from VOC_Term where _Vocab_key = 62', 'auto')
 for r in results:
     dbCreatorMap[r['term']] = r['_Term_key']
 
 # map database Jnumbers to their reference keys
-results = db.sql('select accID, _Object_key ' + \
-	'from ACC_Accession ' + \
-	'where _MGIType_key = 1 ' + \
-	'and _LogicalDB_key = 1 ' + \
-	'and prefixPart = "J:"', 'auto')
+results = db.sql('''select accID, _Object_key 
+	from ACC_Accession 
+	where _MGIType_key = 1 and _LogicalDB_key = 1 and prefixPart = 'J:'
+	''', 'auto')
 for r in results:
     dbJNumMap[r['accID']] = r['_Object_key']
 
@@ -189,13 +182,9 @@ for line in inFile.readlines():
     if inName in inputDerivNameList:
 	print "Duplicate input derivation, skipping: %s See line %s" % (inName, currentLine)
 	continue
-    inputDerivNameList.append(inName)
 
-    if len(inName) > 255:
-	sys.exit('Derivation name > 255: %s' % inName)
+    inputDerivNameList.append(inName)
     inDescript = string.strip(lineList[1]) 	# may be null
-    if len(inDescript) > 255:
-	sys.exit('Derivation description > 255: %s' % inName)
     inVector = string.strip(lineList[2])
     inVectorType = string.strip(lineList[3])
     inParent = string.strip(lineList[4])
@@ -265,10 +254,10 @@ for line in inFile.readlines():
 	continue
     bcpFile.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' %
 	(nextAvailableDerivKey, colDelim, inName, colDelim, inDescript, \
-	colDelim, vectorKey, colDelim, vectorTypeKey, colDelim, \
-	parentKey, colDelim, derivTypeKey, colDelim, creatorKey, \
-	colDelim, referenceKey, colDelim, userKey, colDelim, userKey, \
-	colDelim, date, colDelim, date, lineDelim))
+	 colDelim, vectorKey, colDelim, vectorTypeKey, colDelim, \
+	 parentKey, colDelim, derivTypeKey, colDelim, creatorKey, \
+	 colDelim, referenceKey, colDelim, userKey, colDelim, userKey, \
+	 colDelim, date, colDelim, date, lineDelim))
 
     # increment the primary key
     nextAvailableDerivKey = nextAvailableDerivKey + 1

@@ -82,20 +82,19 @@ creator = "Not Specified"
 
 # get the list of derivationTypes we'll use from the 
 # allele Type vocabulary
-results = db.sql('select term ' + \
-	'from VOC_Term ' + \
-	'where _Vocab_key = 38', 'auto')
+results = db.sql('select term from VOC_Term where _Vocab_key = 38', 'auto')
 print "%s allele types" % len(results)
 
 for r in results:
     derivationTypes.append(r['term'])
 
 # get the parentCellLines names with their strains
-results = db.sql('select cl.cellLine, s.strain ' + \
-	    'from ALL_CellLine cl, PRB_Strain s ' + \
-	    'where cl.isMutant = 0 ' + \
-	    'and cl._Strain_key = s._Strain_key ' + \
-	    'order by cl.cellLine', 'auto')
+results = db.sql('''select cl.cellLine, s.strain
+	    from ALL_CellLine cl, PRB_Strain s
+	    where cl.isMutant = 0
+	    and cl._Strain_key = s._Strain_key
+	    order by cl.cellLine
+	    ''', 'auto')
 
 print "%s parent cell lines" % len(results)
 for r in results:
