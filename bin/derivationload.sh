@@ -140,7 +140,7 @@ echo "" >> ${LOG_DIAG} ${LOG_PROC}
 echo "`date`" >> ${LOG_DIAG} ${LOG_PROC}
 echo "Running derivation load using ${INFILE_NAME}" | tee -a ${LOG_DIAG} ${LOG_PROC}
 
-${DERIVATIONLOAD}/bin/derivationload.py ${INFILE_NAME} >> ${LOG_DIAG} 2>&1
+${PYTHON} ${DERIVATIONLOAD}/bin/derivationload.py ${INFILE_NAME} >> ${LOG_DIAG} 2>&1
 STAT=$?
 checkStatus ${STAT} "derivationload.py"
 
@@ -158,11 +158,11 @@ ${MGD_DBSCHEMADIR}/index/${TABLE}_drop.object >> ${LOG_DIAG} 2>&1
 date | tee -a ${LOG_DIAG}
 echo "bcp in  ${TABLE} " | tee -a ${LOG_DIAG}
 echo "" | tee -a ${LOG_DIAG}
-${MGI_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${OUTFILE_NAME} ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG} 2>&1
+${PG_DBUTILS}/bin/bcpin.csh ${MGD_DBSERVER} ${MGD_DBNAME} ${TABLE} ${OUTPUTDIR} ${OUTFILE_NAME} ${COLDELIM} ${LINEDELIM} >> ${LOG_DIAG} 2>&1
 STAT=$?
 if [ ${STAT} -ne 0 ]
 then
-    echo "${MGI_DBUTILS}/bin/bcpin.csh failed" | tee -a ${LOG_DIAG}
+    echo "${PG_DBUTILS}/bin/bcpin.csh failed" | tee -a ${LOG_DIAG}
     exit 1
 fi
 

@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 ##########################################################################
 #
@@ -49,10 +48,10 @@ import string
 
 db.useOneConnection(1)
 #db.set_sqlLogFunction(db.sqlLogAll)
-print '%s' % mgi_utils.date()
+print(('%s' % mgi_utils.date()))
 
 outFilePath = os.environ['OUTFILE_NAME']
-print "outfilePath: " + outFilePath
+print(("outfilePath: " + outFilePath))
 
 TAB= '\t'
 NL = '\n'
@@ -83,30 +82,30 @@ creator = "Not Specified"
 # get the list of derivationTypes we'll use from the 
 # allele Type vocabulary
 results = db.sql('select term from VOC_Term where _Vocab_key = 38', 'auto')
-print "%s allele types" % len(results)
+print(("%s allele types" % len(results)))
 
 for r in results:
     derivationTypes.append(r['term'])
 
 # get the parentCellLines names with their strains
 results = db.sql('''select cl.cellLine, s.strain
-	    from ALL_CellLine cl, PRB_Strain s
-	    where cl.isMutant = 0
-	    and cl._Strain_key = s._Strain_key
-	    order by cl.cellLine
-	    ''', 'auto')
+            from ALL_CellLine cl, PRB_Strain s
+            where cl.isMutant = 0
+            and cl._Strain_key = s._Strain_key
+            order by cl.cellLine
+            ''', 'auto')
 
-print "%s parent cell lines" % len(results)
+print(("%s parent cell lines" % len(results)))
 for r in results:
     cellLine = r['cellLine']
     strain = r['strain']
-    if parentCellLines.has_key(cellLine):
-	strainList = parentCellLines[cellLine]
-	strainList.append(strain)
-	parentCellLines[cellLine] = strainList
+    if cellLine in parentCellLines:
+        strainList = parentCellLines[cellLine]
+        strainList.append(strain)
+        parentCellLines[cellLine] = strainList
     else:
-	strainList = [strain]
-	parentCellLines[cellLine] = strainList
+        strainList = [strain]
+        parentCellLines[cellLine] = strainList
 
 #for p in parentCellLines.keys():
 #    print "%s %s" % (p, parentCellLines[p])
@@ -120,17 +119,17 @@ except:
 #
 # Process
 #
-for p in parentCellLines.keys():
+for p in list(parentCellLines.keys()):
     #print p
     strainList = parentCellLines[p]
     for s in strainList:
-	for d in derivationTypes:
-	    derivationName = creator + SPACE + d + SPACE + "Library" + \
-	    SPACE + p + SPACE + s + SPACE + vectorName 
-	    outFile.write(derivationName + TAB + description + TAB + \
-		vectorName + TAB + vectorType + TAB + \
-		p + TAB + s + TAB + creator + TAB + \
-		reference + TAB + d + NL)
+        for d in derivationTypes:
+            derivationName = creator + SPACE + d + SPACE + "Library" + \
+            SPACE + p + SPACE + s + SPACE + vectorName 
+            outFile.write(derivationName + TAB + description + TAB + \
+                vectorName + TAB + vectorType + TAB + \
+                p + TAB + s + TAB + creator + TAB + \
+                reference + TAB + d + NL)
 
 #
 # Post Process
@@ -138,5 +137,5 @@ for p in parentCellLines.keys():
 
 outFile.close()
 
-print '%s' % mgi_utils.date()
+print(('%s' % mgi_utils.date()))
 db.useOneConnection(0)

@@ -58,7 +58,7 @@ export CONFIG_MASTER
 ##################################################################
 
 
-${DERIVATIONLOAD}/bin/createDerivationInputFile.py >> ${LOG_DIAG} 2>&1
+${PYTHON} ${DERIVATIONLOAD}/bin/createDerivationInputFile.py >> ${LOG} 2>&1
 
 exit 0
 

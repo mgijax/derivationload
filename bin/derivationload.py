@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 ##########################################################################
 #
@@ -55,7 +54,7 @@ import loadlib
 import string
 
 db.useOneConnection(1)
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
 
 inFilePath = os.environ['INFILE_NAME']
 bcpFilePath = '%s/%s' % (os.environ['OUTPUTDIR'], os.environ['OUTFILE_NAME'])
@@ -100,13 +99,13 @@ dbJNumMap = {}
 #
 
 # get next available derivation key
-results = db.sql('select derivKey = max(_Derivation_key) + 1 from ALL_CellLine_Derivation', 'auto')
+results = db.sql('select max(_Derivation_key) + 1 as derivKey from ALL_CellLine_Derivation', 'auto')
 nextAvailableDerivKey = results[0]['derivKey']
 if nextAvailableDerivKey == None:
-	nextAvailableDerivKey = 1
+        nextAvailableDerivKey = 1
 
 # get load user key
-results = db.sql('select _User_key from MGI_User where login = "%s"' % user, 'auto')
+results = db.sql("select _User_key from MGI_User where login = '%s' " % user, 'auto')
 userKey = results[0]['_User_key']
 
 # get list of named derivations in the database, so we don't add dups
@@ -127,10 +126,10 @@ for r in results:
 
 # map parent cell line names to their  cell line keys
 results = db.sql('''select a.cellLine, s.strain,  a._CellLine_key
-	from ALL_CellLine a, PRB_Strain s
-	where a.isMutant = 0
-	and a._Strain_key = s._Strain_key
-	''', 'auto')
+        from ALL_CellLine a, PRB_Strain s
+        where a.isMutant = 0
+        and a._Strain_key = s._Strain_key
+        ''', 'auto')
 for r in results:
     key = '%s|%s' % (r['cellLine'], r['strain'])
     dbParentMap[key] = r['_CellLine_key']
@@ -147,9 +146,9 @@ for r in results:
 
 # map database Jnumbers to their reference keys
 results = db.sql('''select accID, _Object_key 
-	from ACC_Accession 
-	where _MGIType_key = 1 and _LogicalDB_key = 1 and prefixPart = 'J:'
-	''', 'auto')
+        from ACC_Accession 
+        where _MGIType_key = 1 and _LogicalDB_key = 1 and prefixPart = 'J:'
+        ''', 'auto')
 for r in results:
     dbJNumMap[r['accID']] = r['_Object_key']
 
@@ -172,97 +171,97 @@ currentLine = 0
 errorCt = 0
 for line in inFile.readlines():
     currentLine = currentLine + 1
-    lineList = string.split(line, TAB)
+    lineList = str.split(line, TAB)
     if len(lineList) != 9:
-	sys.exit('Line has only %s of 8 columns: %s ' %(len(lineList), line))
+        sys.exit('Line has only %s of 8 columns: %s ' %(len(lineList), line))
     
-    inName = string.strip(lineList[0])		# may be null
+    inName = str.strip(lineList[0])		# may be null
 
     # skip any duplicates in the input file
     if inName in inputDerivNameList:
-	print "Duplicate input derivation, skipping: %s See line %s" % (inName, currentLine)
-	continue
+        print("Duplicate input derivation, skipping: %s See line %s" % (inName, currentLine))
+        continue
 
     inputDerivNameList.append(inName)
-    inDescript = string.strip(lineList[1]) 	# may be null
-    inVector = string.strip(lineList[2])
-    inVectorType = string.strip(lineList[3])
-    inParent = string.strip(lineList[4])
-    inStrain = string.strip(lineList[5])
-    inCreator = string.strip(lineList[6]) 	# may be null
-    inJNum = string.strip(lineList[7]) 		# may be null
-    inDerivType = string.strip(lineList[8])
+    inDescript = str.strip(lineList[1]) 	# may be null
+    inVector = str.strip(lineList[2])
+    inVectorType = str.strip(lineList[3])
+    inParent = str.strip(lineList[4])
+    inStrain = str.strip(lineList[5])
+    inCreator = str.strip(lineList[6]) 	# may be null
+    inJNum = str.strip(lineList[7]) 		# may be null
+    inDerivType = str.strip(lineList[8])
 
     # check to see if there is a derivation by this name already in the db
     if inName != 'null' and inName != 'Null':
-	if inName in dbDerivNameList:
-	    print 'Derivation name already in database, skipping: %s See line %s' % (inName, currentLine)
-	    moveOn = 1
+        if inName in dbDerivNameList:
+            print('Derivation name already in database, skipping: %s See line %s' % (inName, currentLine))
+            moveOn = 1
     else:
-	inName = ''
+        inName = ''
 
     # resolve vector to key
-    if dbVectorNameMap.has_key(inVector):
+    if inVector in dbVectorNameMap:
         vectorKey = dbVectorNameMap[inVector]
     else:
-	print 'Cannot resolve Vector Name: %s See line %s' % (inVector, currentLine)
-	moveOn = 1
+        print('Cannot resolve Vector Name: %s See line %s' % (inVector, currentLine))
+        moveOn = 1
 
     # resolve vector type to key
-    if dbVectorTypeMap.has_key(inVectorType):
+    if inVectorType in dbVectorTypeMap:
         vectorTypeKey = dbVectorTypeMap[inVectorType]
     else:
-        print 'Cannot resolve Vector Type: %s See line %s' % (inVectorType, currentLine)
-	moveOn = 1
+        print('Cannot resolve Vector Type: %s See line %s' % (inVectorType, currentLine))
+        moveOn = 1
 
     # resolve parent to key
     parentAndStrain = '%s|%s' % (inParent, inStrain)
-    if dbParentMap.has_key(parentAndStrain):
+    if parentAndStrain in dbParentMap:
         parentKey = dbParentMap[parentAndStrain]
     else:
-        print 'Cannot resolve Parent: %s See line %s' % (parentAndStrain, currentLine)
-	moveOn = 1
+        print('Cannot resolve Parent: %s See line %s' % (parentAndStrain, currentLine))
+        moveOn = 1
 
     # resolve derivation type to key
-    if dbDerivTypeMap.has_key(inDerivType):
+    if inDerivType in dbDerivTypeMap:
         derivTypeKey = dbDerivTypeMap[inDerivType]
     else:
-        print 'Cannot resolve Derivation Type: %s See line %s' % (inDerivType, currentLine)
-	moveOn = 1
+        print('Cannot resolve Derivation Type: %s See line %s' % (inDerivType, currentLine))
+        moveOn = 1
 
     # resolve creator to key if not null
     if inCreator != 'null' and inCreator != 'Null': 
-	if dbCreatorMap.has_key(inCreator):
-	    creatorKey = dbCreatorMap[inCreator]
-	else:
-	    print 'Cannot resolve Creator name: %s See line %s' % (inCreator, currentLine)
-	    moveOn = 1
+        if inCreator in dbCreatorMap:
+            creatorKey = dbCreatorMap[inCreator]
+        else:
+            print('Cannot resolve Creator name: %s See line %s' % (inCreator, currentLine))
+            moveOn = 1
     else: 
-	creatorKey = ''
+        creatorKey = ''
 
     # resolve JNumber to key if not null
     if inJNum == 'null' or inJNum == 'Null' or inJNum == '':
-	referenceKey = ''
-    elif dbJNumMap.has_key(inJNum):
-	referenceKey = dbJNumMap[inJNum]
+        referenceKey = ''
+    elif inJNum in dbJNumMap:
+        referenceKey = dbJNumMap[inJNum]
     else:
-	print 'Cannot resolve JNumber: %s See line %s' % (inJNum, currentLine)
-	moveOn = 1
+        print('Cannot resolve JNumber: %s See line %s' % (inJNum, currentLine))
+        moveOn = 1
     if moveOn == 1:
-	errorCt = errorCt + 1
-	moveOn = 0
-	continue
+        errorCt = errorCt + 1
+        moveOn = 0
+        continue
     bcpFile.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' %
-	(nextAvailableDerivKey, colDelim, inName, colDelim, inDescript, \
-	 colDelim, vectorKey, colDelim, vectorTypeKey, colDelim, \
-	 parentKey, colDelim, derivTypeKey, colDelim, creatorKey, \
-	 colDelim, referenceKey, colDelim, userKey, colDelim, userKey, \
-	 colDelim, date, colDelim, date, lineDelim))
+        (nextAvailableDerivKey, colDelim, inName, colDelim, inDescript, \
+         colDelim, vectorKey, colDelim, vectorTypeKey, colDelim, \
+         parentKey, colDelim, derivTypeKey, colDelim, creatorKey, \
+         colDelim, referenceKey, colDelim, userKey, colDelim, userKey, \
+         colDelim, date, colDelim, date, lineDelim))
 
     # increment the primary key
     nextAvailableDerivKey = nextAvailableDerivKey + 1
 
-print 'Total derivations not loaded because already in the database or resolving errors: %s' % errorCt
+print('Total derivations not loaded because already in the database or resolving errors: %s' % errorCt)
 #
 # Post Process
 #
@@ -270,5 +269,5 @@ print 'Total derivations not loaded because already in the database or resolving
 inFile.close()
 bcpFile.close()
 
-print '%s' % mgi_utils.date()
+print('%s' % mgi_utils.date())
 db.useOneConnection(0)
