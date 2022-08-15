@@ -99,7 +99,7 @@ dbJNumMap = {}
 #
 
 # get next available derivation key
-results = db.sql('select max(_Derivation_key) + 1 as derivKey from ALL_CellLine_Derivation', 'auto')
+results = db.sql(''' select nextval('all_cellline_derivation_seq') as derivKey ''', 'auto')
 nextAvailableDerivKey = results[0]['derivKey']
 if nextAvailableDerivKey == None:
         nextAvailableDerivKey = 1

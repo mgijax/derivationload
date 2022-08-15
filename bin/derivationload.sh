@@ -166,6 +166,10 @@ then
     exit 1
 fi
 
+cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0 >> ${LOG_DIAG}
+select setval('all_cellline_derivation_seq', (select max(_Derivation_key) from ALL_CellLine_Derivation));
+EOSQL
+
 # create indexes
 echo "" | tee -a ${LOG_DIAG}
 date | tee -a ${LOG_DIAG}
